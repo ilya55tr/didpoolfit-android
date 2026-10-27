@@ -2,6 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="gradient_start">#CC8FED</color>
-    <color name="gradient_end">#6B50F6</color>
+    <color name="gradient_start_welcome_btn">#CC8FED</color>
+    <color name="gradient_end_welcome_btn">#6B50F6</color>
+    <color name="gradient_start_splash_bg">#C150F6</color>
+    <color name="gradient_end_splash_bg">#EEA4CE</color>
 </resources>

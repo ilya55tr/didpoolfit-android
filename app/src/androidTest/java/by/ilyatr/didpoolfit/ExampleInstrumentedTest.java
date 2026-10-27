@@ -1,4 +1,4 @@
-package com.example.didpoolfit;
+package by.ilyatr.didpoolfit;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.didpoolfit", appContext.getPackageName());
+        assertEquals("by.ilyatr.didpoolfit", appContext.getPackageName());
     }
 }

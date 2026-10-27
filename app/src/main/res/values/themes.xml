@@ -6,4 +6,9 @@
     </style>
 
     <style name="Theme.DIDPOOLFit" parent="Base.Theme.DIDPOOLFit" />
+
+    <style name="Theme.DIDPOOLFit.Splash" parent="Base.Theme.DIDPOOLFit">
+        <item name="android:windowBackground">@drawable/bg_screen_gradient</item>
+    </style>
+
 </resources>

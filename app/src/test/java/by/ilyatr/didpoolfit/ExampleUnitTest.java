@@ -1,4 +1,4 @@
-package com.example.didpoolfit;
+package by.ilyatr.didpoolfit;
 
 import org.junit.Test;
 

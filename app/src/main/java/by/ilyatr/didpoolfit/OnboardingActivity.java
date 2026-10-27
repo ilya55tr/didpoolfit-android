@@ -1,4 +1,4 @@
-package com.example.didpoolfit;
+package by.ilyatr.didpoolfit;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,8 +55,10 @@ public class OnboardingActivity extends AppCompatActivity {
         showStep(step);
 
         onbButton.setOnClickListener(v -> {
-            if (step == frames.length-1)
+            if (step == frames.length-1){
                 startActivity(new Intent(this, RegisterActivity.class));
+                return;
+            }
             step++;
             showStep(step);
         });

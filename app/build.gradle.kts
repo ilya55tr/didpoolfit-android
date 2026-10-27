@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.didpoolfit"
+    namespace = "by.ilyatr.didpoolfit"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.didpoolfit"
+        applicationId = "by.ilyatr.didpoolfit"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

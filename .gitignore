@@ -16,3 +16,4 @@ local.properties
 
 # Локальные заметки для ИИ-ассистента
 CLAUDE.md
+/.idea/deviceManager.xml
