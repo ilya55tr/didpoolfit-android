@@ -4,12 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Состояние проекта
 
-Свежий шаблон Android Studio «Empty Views Activity»: один модуль `:app`, одна `MainActivity` с layout `activity_main.xml` (ConstraintLayout + «Hello World»). Бизнес-логики пока нет, тесты — заглушки `ExampleUnitTest` / `ExampleInstrumentedTest`. Git-репозиторий не инициализирован.
+Учебная практика УП.01.02, вариант 27: фитнес-приложение по макету Figma (https://www.figma.com/design/vEpiBBAhA81bS69refp7nd/). Один модуль `:app`. Репозиторий: https://github.com/ilya55tr/didpoolfit-android, план работ — в GitHub Issues.
+
+Код пишет автор проекта сам. ИИ-ассистент выступает наставником: объясняет подход, называет классы и атрибуты, готовый код даёт только по прямой просьбе.
+
+Что уже есть:
+- `SplashActivity` — стартовый экран (LAUNCHER), 2 секунды на градиентном фоне, затем `WelcomeScreenActivity`.
+- `WelcomeScreenActivity` — кнопка Get Started ведёт в онбординг.
+- `OnboardingActivity` — 4 шага в одной активити (массивы картинок + `showStep`), «назад» через `OnBackPressedCallback`, после последнего шага — регистрация.
+- `RegisterActivity` — в работе: поля имени, телефона (форматирование `PhoneNumberFormattingTextWatcher("RU")`), email и пароля на `TextInputLayout`.
+
+Пока нет: хранения пользователя (план — SharedPreferences, без БД), Login, двух сценариев запуска, главного экрана, профиля. Тесты — шаблонные заглушки `ExampleUnitTest` / `ExampleInstrumentedTest`.
 
 ## Стек
 
 - Язык — **Java** (не Kotlin), `sourceCompatibility`/`targetCompatibility` = Java 11. Kotlin-плагин не подключён.
-- UI — XML-вёрстка (Views), не Compose. Тема `Theme.DIDPOOLFit` наследуется от `Theme.Material3.DayNight.NoActionBar`; `MainActivity` включает edge-to-edge и вручную раздаёт отступы системных панелей на view `@id/main`.
+- UI — XML-вёрстка (Views), не Compose. Тема `Theme.DIDPOOLFit` наследуется от `Theme.Material3.DayNight.NoActionBar` (план — сменить на Light); у `SplashActivity` своя тема `Theme.DIDPOOLFit.Splash`. Каждая активити включает edge-to-edge и вручную раздаёт отступы системных панелей на view `@id/main`.
 - AGP 9.4.1, Gradle 9.6.0 (wrapper), `compileSdk`/`targetSdk` = 37, `minSdk` = 24.
 - Пакет / `applicationId` — `by.ilyatr.didpoolfit`.
 - Версии зависимостей — только через version catalog `gradle/libs.versions.toml` (в `app/build.gradle.kts` ссылки вида `libs.appcompat`).
