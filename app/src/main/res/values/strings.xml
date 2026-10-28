@@ -2,4 +2,13 @@
     <string name="app_name">DIDPOOLFit</string>
     <string name="get_started">Get started</string>
     <string name="next_onboarding">NEXT ONBOARDING</string>
+    <string name="register">Register</string>
+    <string name="by_continuing_you_accept_our_privacy_policy_and_term_of_use">By continuing you accept our <u>Privacy Policy</u> and <u>Term of Use</u></string>
+    <string name="error_empty">Field must not be empty</string>
+    <string name="error_phone">Enter the full phone number</string>
+    <string name="error_email">Invalid email</string>
+    <string name="error_password">Password must be 8 digits or special characters</string>
+    <string name="error_repeat_password">Passwords do not match</string>
+    <string name="error_terms">Accept the terms to continue</string>
+    <string name="forgot_your_password"><u>Forgot your password?</u></string>
 </resources>

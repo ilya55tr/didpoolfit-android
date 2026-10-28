@@ -141,6 +141,112 @@
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/repeatPasswordLayout"
+        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
+        app:errorEnabled="true"
+        app:hintEnabled="false"
+        app:startIconDrawable="@drawable/start_input_password_field"
+        app:boxBackgroundColor="#F7F8F8"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/repeatPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:gravity="center_vertical"
+            android:textSize="14sp"
+            android:textColor="#1D1617"
+            android:hint="Repeat password"
+            android:textColorHint="#AEAEB2"
+            android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="25dp">
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/termsCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/by_continuing_you_accept_our_privacy_policy_and_term_of_use"
+            android:textSize="12sp"
+            android:textColor="#AEAEB2"
+            android:fontFamily="@font/poppins_regular"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_button_gradient"
+            android:text="@string/register"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold"
+            app:backgroundTint="@null"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="15dp"/>
+
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/or_register_line"/>
+
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/social_media"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have account? "
+                android:gravity="center"
+                android:fontFamily="@font/poppins_regular"/>
+            <TextView
+                android:id="@+id/loginTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#C456F2"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Login"
+                android:gravity="center"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
 
 
 </LinearLayout>
