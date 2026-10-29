@@ -210,6 +210,11 @@
             android:textStyle="bold"
             android:fontFamily="@font/poppins_bold"
             app:backgroundTint="@null"
+            android:elevation="10dp"
+            android:stateListAnimator="@null"
+            android:outlineSpotShadowColor="@color/gradient_end_welcome_btn"
+            android:outlineAmbientShadowColor="@color/gradient_end_welcome_btn"
+            tools:targetApi="p"
             android:layout_marginHorizontal="30dp"
             android:layout_marginBottom="15dp"/>
 

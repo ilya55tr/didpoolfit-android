@@ -88,15 +88,11 @@ public class RegisterActivity extends AppCompatActivity {
         userEdit = userData.edit();
         registerButton.setOnClickListener(v -> {
             if (validate()) {
-                userEdit.putString("fullName",
-                        String.valueOf(nameLayout.getEditText().getText()));
-                userEdit.putString("phoneNumber",
-                        String.valueOf(phoneLayout.getEditText().getText()));
-                userEdit.putString("email",
-                        String.valueOf(emailLayout.getEditText().getText()));
-                userEdit.putString("password",
-                        String.valueOf(passwordLayout.getEditText().getText()));
-                userEdit.putBoolean("registered", true);
+                userEdit.putString("fullName", getText(nameLayout));
+                userEdit.putString("phoneNumber", getText(phoneLayout));
+                userEdit.putString("email", getText(emailLayout));
+                userEdit.putString("password", getText(passwordLayout));
+                userEdit.apply();
                 startActivity(new Intent(this, RegisterSecondActivity.class));
             }
         });

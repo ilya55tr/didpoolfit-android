@@ -1,10 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".RegisterSecondActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:src="@drawable/register_second_frame"/>
+        <ImageView
+            android:layout_marginVertical="20dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/register_second_text_section"/>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/genderLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true"
+            app:startIconDrawable="@drawable/gender_icon"
+            app:boxBackgroundColor="#F7F8F8"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:hintEnabled="false"
+            android:layout_marginHorizontal="25dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/genderInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:gravity="center_vertical"
+                android:textSize="14sp"
+                android:inputType="none"
+                android:hint="Choose gender"
+                android:textColor="#1D1617"
+                android:textColorHint="#AEAEB2"
+                app:simpleItems="@array/genders"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            android:id="@+id/dateOfBirthLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true"
+            app:startIconDrawable="@drawable/calendar_icon"
+            app:boxBackgroundColor="#F7F8F8"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:hintEnabled="false"
+            android:layout_marginHorizontal="25dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/dateOfBirthInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:gravity="center_vertical"
+                android:textSize="14sp"
+                android:inputType="none"
+                android:hint="Date of Birth"
+                android:focusable="false"
+                android:clickable="true"
+                android:textColor="#1D1617"
+                android:textColorHint="#AEAEB2"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                android:id="@+id/weightLayout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:startIconDrawable="@drawable/weight_icon"
+                app:boxBackgroundColor="#F7F8F8"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintEnabled="false"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="15dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/weightInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:gravity="center_vertical"
+                    android:textSize="14sp"
+                    android:inputType="numberDecimal"
+                    android:hint="Your Weight"
+                    android:textColor="#1D1617"
+                    android:textColorHint="#AEAEB2" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:layout_marginEnd="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/button_kg"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                android:id="@+id/heightLayout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                app:startIconDrawable="@drawable/height_icon"
+                app:boxBackgroundColor="#F7F8F8"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintEnabled="false"
+                android:layout_marginStart="25dp"
+                android:layout_marginEnd="15dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/heightInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:gravity="center_vertical"
+                    android:textSize="14sp"
+                    android:inputType="number"
+                    android:hint="Your Height"
+                    android:textColor="#1D1617"
+                    android:textColorHint="#AEAEB2"
+                    android:maxLength="3"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:layout_marginEnd="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/button_cm"/>
+        </LinearLayout>
+        <Button
+            android:id="@+id/nextButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_button_gradient"
+            android:text="@string/next"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold"
+            app:backgroundTint="@null"
+            android:elevation="10dp"
+            android:stateListAnimator="@null"
+            android:outlineSpotShadowColor="@color/gradient_end_welcome_btn"
+            android:outlineAmbientShadowColor="@color/gradient_end_welcome_btn"
+            tools:targetApi="p"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="30dp"/>
+    </LinearLayout>
+
+</LinearLayout>

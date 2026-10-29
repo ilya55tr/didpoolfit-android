@@ -10,5 +10,13 @@
     <string name="error_password">Password must be 8 digits or special characters</string>
     <string name="error_repeat_password">Passwords do not match</string>
     <string name="error_terms">Accept the terms to continue</string>
+    <string name="error_weight">Weight must be from 20 to 300 kg</string>
+    <string name="error_height">Height must be from 50 to 250 cm</string>
     <string name="forgot_your_password"><u>Forgot your password?</u></string>
+    <string name="next"><![CDATA[Next >]]></string>
+
+    <string-array name="genders">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 </resources>
