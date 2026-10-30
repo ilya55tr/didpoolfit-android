@@ -7,4 +7,108 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+    <TextView
+        android:id="@+id/welcome_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome back,"
+        android:textColor="#AEAEB2"
+        android:fontFamily="@font/poppins_regular"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:textSize="18sp"/>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masi Ramezanzade"
+        android:textColor="@color/black"
+        android:fontFamily="@font/poppins_bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcome_back"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="20dp"
+        android:textSize="25sp"/>
+    <ImageView
+        android:id="@+id/notifiation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/notification"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bmiCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/banner_background_bmi">
+        <ImageView
+            android:id="@+id/dots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/banner_dots_bmi"/>
+        <TextView
+            android:id="@+id/BMI_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:text="BMI (Body Mass Index)"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="10dp"/>
+        <TextView
+            android:id="@+id/verdict"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You have a normal weight"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/BMI_text"
+            android:layout_margin="10dp"/>
+
+        <Button
+            android:id="@+id/viewMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/verdict"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="12sp"
+            android:fontFamily="@font/poppins_medium"
+            android:background="@drawable/bg_button_gradient"
+            app:backgroundTint="@null"
+            android:elevation="10dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            android:outlineSpotShadowColor="@color/gradient_end_welcome_btn"
+            android:outlineAmbientShadowColor="@color/gradient_end_welcome_btn"
+            tools:targetApi="p"
+            android:text="@string/view_more"
+            android:layout_margin="10dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/nav_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package by.ilyatr.didpoolfit;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -98,7 +100,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         loginTextView.setOnClickListener(v -> {
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            loginIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(loginIntent);
         });
         loginTextView.setHighlightColor(Color.TRANSPARENT);
     }
@@ -148,6 +152,22 @@ public class RegisterActivity extends AppCompatActivity {
             termsCheck.setErrorShown(true);
             termsCheck.setErrorAccessibilityLabel(getString(R.string.error_terms));
             valid = false;
+        }
+
+        // 5. Такой аккаунт уже есть. Проверяем только после полной регистрации:
+        // иначе вернувшийся с Register 2 пользователь получит ошибку на свои же данные
+        if (userData.getBoolean("registered", false)) {
+            String savedEmail = userData.getString("email", "");
+            if (!email.isEmpty() && email.equalsIgnoreCase(savedEmail)) {
+                emailLayout.setError(getString(R.string.error_email_exists));
+                valid = false;
+            }
+            // Сохранённый номер отформатирован ("+7 912 345-67-89"), сравниваем только цифры
+            String savedPhoneDigits = userData.getString("phoneNumber", "").replaceAll("\\D", "");
+            if (phoneDigits.length() == PHONE_DIGITS && phoneDigits.equals(savedPhoneDigits)) {
+                phoneLayout.setError(getString(R.string.error_phone_exists));
+                valid = false;
+            }
         }
 
         return valid;

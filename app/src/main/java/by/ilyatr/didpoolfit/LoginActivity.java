@@ -1,9 +1,13 @@
 package by.ilyatr.didpoolfit;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,16 +22,13 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivity extends AppCompatActivity {
-
-
   TextView register;
   TextView forgetLogin;
   Button login;
   TextInputLayout emailLayout;
-  TextInputEditText emailInput;
-
   TextInputLayout passwordLayout;
-  TextInputEditText passwordInput;
+  SharedPreferences userData;
+  SharedPreferences.Editor userEdit;
 
 
 
@@ -44,18 +45,56 @@ public class LoginActivity extends AppCompatActivity {
 
     emailLayout = findViewById(R.id.emailLayout);
     passwordLayout = findViewById(R.id.passwordLayout);
-    emailInput = findViewById(R.id.emailInput);
-    passwordInput = findViewById(R.id.passwordInput);
+
 
     forgetLogin = findViewById(R.id.forgetPassword);
+    register = findViewById(R.id.registerTextView);
+
+    login = findViewById(R.id.loginButton);
 
     register.setOnClickListener(v ->{
-      startActivity(new Intent(this, RegisterActivity.class));
+      Intent registerIntent = new Intent(this, RegisterActivity.class);
+      registerIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+      startActivity(registerIntent);
     });
     forgetLogin.setOnClickListener(v -> {
       Toast.makeText(this, "Coming soon", Toast.LENGTH_SHORT).show();
     });
+    clearErrorOnInput(emailLayout);
+    clearErrorOnInput(passwordLayout);
+    userData = getSharedPreferences("user", MODE_PRIVATE);
+    userEdit = userData.edit();
+    login.setOnClickListener(v -> {
+      if(validate()){
+        userEdit.putBoolean("loggedIn", true);
+        userEdit.apply();
+        Intent homeIntent = new Intent(this, HomeActivity.class);
+        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(homeIntent);
+      }
+    });
+  }
 
+  private boolean validate() {
+    boolean valid = true;
+    String corrEmail = userData.getString("email", null);
+    String corrPass = userData.getString("password", null);
+    // 1. Пустые поля
+    valid &= checkNotEmpty(emailLayout);
+    valid &= checkNotEmpty(passwordLayout);
+    String email = getText(emailLayout);
+    String password = getText(passwordLayout);
+
+    if(!email.equals(corrEmail)){
+      emailLayout.setError(getString(R.string.error_email));
+      valid = false;
+    }
+
+    if (!password.equals(corrPass)){
+      passwordLayout.setError(getString(R.string.invalid_password));
+      valid = false;
+    }
+    return valid;
   }
 
 

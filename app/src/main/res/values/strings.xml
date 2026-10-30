@@ -14,6 +14,16 @@
     <string name="error_height">Height must be from 50 to 250 cm</string>
     <string name="forgot_your_password"><u>Forgot your password?</u></string>
     <string name="next"><![CDATA[Next >]]></string>
+    <string name="invalid_password">Invalid password</string>
+    <string name="error_email_exists">This email is already registered</string>
+    <string name="error_phone_exists">This phone number is already registered</string>
+    <string name="view_more">View more</string>
+    <string name="splash_percent">%d%%</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_activity">Activity</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_profile">Profile</string>
 
     <string-array name="genders">
         <item>Male</item>

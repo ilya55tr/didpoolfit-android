@@ -119,10 +119,9 @@ public class RegisterSecondActivity extends AppCompatActivity {
         userEdit.putInt("height", height);
         userEdit.putBoolean("registered", true);
         userEdit.apply();
-        Intent homeIntent = new Intent(this, HomeActivity.class);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(homeIntent);
-        finish();
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(loginIntent);
       }
     });
   }
