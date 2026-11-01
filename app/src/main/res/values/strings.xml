@@ -18,12 +18,17 @@
     <string name="error_email_exists">This email is already registered</string>
     <string name="error_phone_exists">This phone number is already registered</string>
     <string name="view_more">View more</string>
+    <string name="bmi_value">%1$.1f</string>
+    <string name="bmi_chart_value">BMI: %1$s</string>
+    <string name="bmi_no_data">—</string>
+    <string name="bmi_description">Based on your profile</string>
     <string name="splash_percent">%d%%</string>
     <string name="nav_home">Home</string>
     <string name="nav_activity">Activity</string>
     <string name="nav_search">Search</string>
     <string name="nav_camera">Camera</string>
     <string name="nav_profile">Profile</string>
+    <string name="workout_info">%1$d Excercises | %2$d mins</string>
 
     <string-array name="genders">
         <item>Male</item>
