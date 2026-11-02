@@ -46,6 +46,15 @@
             android:name=".HomeActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".workout_details"
+            android:exported="false"
+            android:theme="@style/Theme.DIDPOOLFit"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".WorkoutDetailsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

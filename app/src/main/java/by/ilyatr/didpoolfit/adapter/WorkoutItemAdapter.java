@@ -20,7 +20,7 @@ import by.ilyatr.didpoolfit.model.WorkoutItem;
 
 public class WorkoutItemAdapter extends RecyclerView.Adapter<WorkoutItemViewHolder> {
 
-    List<WorkoutItem> items;
+    private final List<WorkoutItem> items;
     public WorkoutItemAdapter(List<WorkoutItem> items) {
         this.items = items;
     }

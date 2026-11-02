@@ -66,6 +66,9 @@ public class RegisterActivity extends AppCompatActivity {
             } else if (!hasFocus && text.replaceAll("\\D", "").equals("7")) {
                 phoneInput.setText("");
             }
+            if (!hasFocus && !getText(phoneLayout).isEmpty()) {
+                validateInput(phoneLayout, true);
+            }
         });
 
         nameLayout = findViewById(R.id.nameLayout);
@@ -77,6 +80,9 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.registerButton);
         loginTextView = findViewById(R.id.loginTextView);
 
+        userData = getSharedPreferences("user", MODE_PRIVATE);
+        userEdit = userData.edit();
+
         clearErrorOnInput(nameLayout);
         clearErrorOnInput(phoneLayout);
         clearErrorOnInput(emailLayout);
@@ -84,10 +90,19 @@ public class RegisterActivity extends AppCompatActivity {
         clearErrorOnInput(repeatPasswordLayout);
         termsCheck.setOnCheckedChangeListener((v, isChecked) -> {
             if (isChecked) termsCheck.setErrorShown(false);
+            updateRegistrationSteps();
         });
 
-        userData = getSharedPreferences("user", MODE_PRIVATE);
-        userEdit = userData.edit();
+        // У телефона уже есть обработчик фокуса для префикса +7.
+        for (TextInputLayout layout : new TextInputLayout[]{
+                nameLayout, emailLayout, passwordLayout, repeatPasswordLayout}) {
+            layout.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus && !getText(layout).isEmpty()) {
+                    validateInput(layout, true);
+                }
+            });
+        }
+        updateRegistrationSteps();
         registerButton.setOnClickListener(v -> {
             if (validate()) {
                 userEdit.putString("fullName", getText(nameLayout));
@@ -109,42 +124,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean validate() {
         boolean valid = true;
-
-        // 1. Пустые поля
-        valid &= checkNotEmpty(nameLayout);
-        valid &= checkNotEmpty(emailLayout);
-        valid &= checkNotEmpty(passwordLayout);
-        valid &= checkNotEmpty(repeatPasswordLayout);
-
-        // Телефон: "+7" после фокуса — тоже пусто, поэтому считаем цифры
-        String phoneDigits = getText(phoneLayout).replaceAll("\\D", "");
-        if (phoneDigits.length() <= 1) {
-            phoneLayout.setError(getString(R.string.error_empty));
-            valid = false;
-        } else if (phoneDigits.length() != PHONE_DIGITS) {
-            phoneLayout.setError(getString(R.string.error_phone));
-            valid = false;
-        }
-
-        // 2. Email
-        String email = getText(emailLayout);
-        if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailLayout.setError(getString(R.string.error_email));
-            valid = false;
-        }
-
-        // 3. Пароль: только цифры и спецсимволы, 8 символов
-        String password = getText(passwordLayout);
-        if (!password.isEmpty() && !password.matches(PASSWORD_REGEX)) {
-            passwordLayout.setError(getString(R.string.error_password));
-            valid = false;
-        }
-
-        // 4. Повтор пароля
-        String repeatPassword = getText(repeatPasswordLayout);
-        if (!repeatPassword.isEmpty() && !repeatPassword.equals(password)) {
-            repeatPasswordLayout.setError(getString(R.string.error_repeat_password));
-            valid = false;
+        for (TextInputLayout layout : new TextInputLayout[]{
+                nameLayout, phoneLayout, emailLayout, passwordLayout, repeatPasswordLayout}) {
+            valid &= validateInput(layout, true);
         }
 
         // Соглашение
@@ -154,31 +136,63 @@ public class RegisterActivity extends AppCompatActivity {
             valid = false;
         }
 
-        // 5. Такой аккаунт уже есть. Проверяем только после полной регистрации:
-        // иначе вернувшийся с Register 2 пользователь получит ошибку на свои же данные
-        if (userData.getBoolean("registered", false)) {
-            String savedEmail = userData.getString("email", "");
-            if (!email.isEmpty() && email.equalsIgnoreCase(savedEmail)) {
-                emailLayout.setError(getString(R.string.error_email_exists));
-                valid = false;
-            }
-            // Сохранённый номер отформатирован ("+7 912 345-67-89"), сравниваем только цифры
-            String savedPhoneDigits = userData.getString("phoneNumber", "").replaceAll("\\D", "");
-            if (phoneDigits.length() == PHONE_DIGITS && phoneDigits.equals(savedPhoneDigits)) {
-                phoneLayout.setError(getString(R.string.error_phone_exists));
-                valid = false;
-            }
-        }
-
         return valid;
     }
 
-    private boolean checkNotEmpty(TextInputLayout layout) {
-        if (getText(layout).isEmpty()) {
-            layout.setError(getString(R.string.error_empty));
-            return false;
+    // Одни правила используются и для открытия следующего шага, и перед сохранением.
+    private boolean validateInput(TextInputLayout layout, boolean showError) {
+        String text = getText(layout);
+        int error = 0;
+        if (text.isEmpty()) {
+            error = R.string.error_empty;
+        } else if (layout == phoneLayout) {
+            String digits = text.replaceAll("\\D", "");
+            if (digits.length() <= 1) {
+                error = R.string.error_empty;
+            } else if (digits.length() != PHONE_DIGITS) {
+                error = R.string.error_phone;
+            } else if (userData.getBoolean("registered", false)
+                    && digits.equals(userData.getString("phoneNumber", "").replaceAll("\\D", ""))) {
+                error = R.string.error_phone_exists;
+            }
+        } else if (layout == emailLayout) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
+                error = R.string.error_email;
+            } else if (userData.getBoolean("registered", false)
+                    && text.equalsIgnoreCase(userData.getString("email", ""))) {
+                error = R.string.error_email_exists;
+            }
+        } else if (layout == passwordLayout && !text.matches(PASSWORD_REGEX)) {
+            error = R.string.error_password;
+        } else if (layout == repeatPasswordLayout && !text.equals(getText(passwordLayout))) {
+            error = R.string.error_repeat_password;
         }
-        return true;
+        if (showError) {
+            layout.setError(error == 0 ? null : getString(error));
+        }
+        return error == 0;
+    }
+
+    private void updateRegistrationSteps() {
+        boolean previousValid = true;
+        for (TextInputLayout layout : new TextInputLayout[]{
+                nameLayout, phoneLayout, emailLayout, passwordLayout, repeatPasswordLayout}) {
+            // Не вызываем setEnabled повторно: это может мешать фокусу при вводе.
+            if (layout.isEnabled() != previousValid) {
+                layout.setEnabled(previousValid);
+            }
+            if (!previousValid) layout.setError(null);
+            previousValid = previousValid && validateInput(layout, false);
+        }
+        termsCheck.setEnabled(previousValid);
+        registerButton.setEnabled(previousValid && termsCheck.isChecked());
+        registerButton.setAlpha(registerButton.isEnabled() ? 1f : 0.5f);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        updateRegistrationSteps();
     }
 
     // Пароли не обрезаем: пробел — тоже символ пароля
@@ -199,6 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 layout.setError(null);
+                updateRegistrationSteps();
             }
         });
     }
