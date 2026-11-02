@@ -41,13 +41,13 @@ public class ExerciseRowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
   public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
     ExerciseRow row = exercises.get(position);
     if (holder instanceof ExerciseHolder){
-      SetHeaderHolder setHeaderHolder = (SetHeaderHolder) holder;
-      setHeaderHolder.getTitle().setText(row.getTitle());
-    }else {
       ExerciseHolder exerciseHolder = (ExerciseHolder) holder;
       exerciseHolder.getName().setText(row.getExercise().getName());
       exerciseHolder.getAmount().setText(row.getExercise().getAmount());
       exerciseHolder.getImage().setImageResource(row.getExercise().getImage());
+    }else {
+      SetHeaderHolder setHeaderHolder = (SetHeaderHolder) holder;
+      setHeaderHolder.getTitle().setText(row.getTitle());
     }
   }
 

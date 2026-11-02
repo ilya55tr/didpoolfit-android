@@ -28,19 +28,19 @@
     <string name="nav_search">Search</string>
     <string name="nav_camera">Camera</string>
     <string name="nav_profile">Profile</string>
-    <string name="workout_info">%1$d Excercises | %2$d mins</string>
+    <string name="workout_info">%1$d Exercises | %2$d mins</string>
 
     <string-array name="genders">
         <item>Male</item>
         <item>Female</item>
     </string-array>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="previous">Previous</string>
-    <string name="workout_description">%1$d Exercises | %2$dmins | %3$d Calories Burn</string>
+
+    <string name="workout_description">%1$d Exercises | %2$d mins | ~%3$d Calories</string>
+    <string name="default_workout_title">Workout</string>
+    <string name="workout_equipment_title">You’ll Need</string>
+    <string name="workout_exercises_title">Exercises</string>
     <string name="amount_items">%1$d items</string>
     <string name="set_title">Set %1$d</string>
-    <string name="set_amount">%1$1 Sets</string>
+    <string name="set_amount">%1$d Sets</string>
     <string name="start_workout">Start Workout</string>
 </resources>

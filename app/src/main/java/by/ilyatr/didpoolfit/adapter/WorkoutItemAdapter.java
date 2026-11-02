@@ -1,6 +1,7 @@
 package by.ilyatr.didpoolfit.adapter;
 
 
+import android.content.Intent;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.view.LayoutInflater;
@@ -11,10 +12,10 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import by.ilyatr.didpoolfit.R;
+import by.ilyatr.didpoolfit.WorkoutDetailsActivity;
 import by.ilyatr.didpoolfit.holder.WorkoutItemViewHolder;
 import by.ilyatr.didpoolfit.model.WorkoutItem;
 
@@ -40,6 +41,7 @@ public class WorkoutItemAdapter extends RecyclerView.Adapter<WorkoutItemViewHold
         holder.getTitle().setText(workoutItem.getTitle());
         holder.getTitle().getPaint().setShader(null);
         Button workoutButton = holder.getWorkoutButton();
+
         workoutButton.post(() -> {
             if (workoutButton.getLayout() == null || workoutButton.getLayout().getLineCount() == 0) {
                 return;
@@ -57,6 +59,20 @@ public class WorkoutItemAdapter extends RecyclerView.Adapter<WorkoutItemViewHold
                 workoutButton.invalidate();
             }
         });
+
+        Intent workoutDetailsIntent = new Intent(
+                workoutButton.getContext(),
+                WorkoutDetailsActivity.class
+        );
+        workoutDetailsIntent.putExtra("title", workoutItem.getTitle());
+        workoutDetailsIntent.putExtra("exercises", workoutItem.getExerciseAmount().intValue());
+        workoutDetailsIntent.putExtra("mins", workoutItem.getTime().intValue());
+        workoutDetailsIntent.putExtra("calories", workoutItem.getCalories().intValue());
+        workoutDetailsIntent.putExtra("seed", workoutItem.getSeed());
+
+        workoutButton.setOnClickListener(v ->
+                workoutButton.getContext().startActivity(workoutDetailsIntent));
+
         holder.getInfo().setText(holder.itemView.getContext().getString(R.string.workout_info,
                 workoutItem.getExerciseAmount(),
                 workoutItem.getTime()));

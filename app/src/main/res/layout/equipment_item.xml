@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="100dp"
+    android:layout_marginEnd="12dp"
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/equip_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no"
         android:src="@drawable/barbell"/>
     <TextView
         android:id="@+id/equip_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Barbell"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="12sp"
+        android:gravity="center"
         android:fontFamily="@font/poppins_regular"
         android:padding="0dp"
         android:minHeight="0dp"
-        android:layout_marginTop="5pt"/>
+        android:layout_marginTop="8dp"/>
     
     
 </LinearLayout>

@@ -5,12 +5,28 @@ public class WorkoutItem {
     private Integer exerciseAmount;
     private Integer time;
     private Integer image;
+    private Integer calories;
+    private final long seed;
 
-    public WorkoutItem(String title, Integer exerciseAmount, Integer time, Integer image) {
+    public WorkoutItem(String title, Integer exerciseAmount, Integer time, Integer image, Integer calories, long seed) {
+        this.seed = seed;
         this.title = title;
         this.exerciseAmount = exerciseAmount;
         this.time = time;
         this.image = image;
+        this.calories = calories;
+    }
+
+    public long getSeed() {
+        return seed;
+    }
+
+    public Integer getCalories() {
+        return calories;
+    }
+
+    public void setCalories(Integer calories) {
+        this.calories = calories;
     }
 
     public String getTitle() {

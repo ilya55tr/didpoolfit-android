@@ -3,26 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginHorizontal="30dp">
+    android:paddingVertical="8dp">
 
     <ImageView
         android:id="@+id/exercise_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no"
         android:src="@drawable/warm_up"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toTopOf="parent"/>
     <TextView
         android:id="@+id/exercise_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Warm Up"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/exercise_img"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="10dp"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintEnd_toStartOf="@id/icon_next"
+        app:layout_constraintTop_toTopOf="@id/exercise_img"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"/>
     <TextView
         android:id="@+id/exercises_amount"
         android:layout_width="wrap_content"
@@ -33,14 +42,15 @@
         android:fontFamily="@font/poppins_regular"
         app:layout_constraintTop_toBottomOf="@+id/exercise_name"
         app:layout_constraintStart_toEndOf="@+id/exercise_img"
-        app:layout_constraintBottom_toBottomOf="@+id/exercise_img"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="10dp"/>
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="12dp"/>
 
     <ImageView
         android:id="@+id/icon_next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:scaleType="centerInside"
+        android:importantForAccessibility="no"
         android:src="@drawable/icon_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
