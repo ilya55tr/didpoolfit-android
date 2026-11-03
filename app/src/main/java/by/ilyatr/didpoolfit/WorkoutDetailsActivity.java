@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,11 +26,20 @@ import com.google.android.material.snackbar.Snackbar;
 import by.ilyatr.didpoolfit.adapter.EquipmentAdapter;
 import by.ilyatr.didpoolfit.adapter.ExerciseRowAdapter;
 import by.ilyatr.didpoolfit.model.Equipment;
+import by.ilyatr.didpoolfit.model.Equipment.EquipmentType;
 import by.ilyatr.didpoolfit.model.Exercise;
 import by.ilyatr.didpoolfit.model.ExerciseRow;
 import by.ilyatr.didpoolfit.model.WorkoutPlan;
 
 public class WorkoutDetailsActivity extends AppCompatActivity {
+    private final EnumSet<EquipmentType> selected = EnumSet.noneOf(EquipmentType.class);
+
+    private static final EquipmentType[] EXERCISE_EQUIPMENT = {
+            EquipmentType.NONE, EquipmentType.NONE, EquipmentType.ROPE,
+            EquipmentType.BARBELL, EquipmentType.BARBELL, EquipmentType.WATER,
+            EquipmentType.NONE, EquipmentType.NONE, EquipmentType.NONE
+    };
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     // Indices match the exercise constants in WorkoutPlan.
     private static final String[] EXERCISE_NAMES = {
@@ -69,27 +79,22 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
                 plan.steps.size(), plan.minutes, plan.minutes * 5));
 
         List<Equipment> equipment = new ArrayList<>();
-        String[] equipmentNames = {"Barbell", "Skipping Rope", "Water Bottle"};
-        int[] equipmentImages = {
-                R.drawable.barbell, R.drawable.skipping_rope, R.drawable.bottle
-        };
-        for (int i = 0; i < equipmentNames.length; i++) {
-            equipment.add(new Equipment(equipmentNames[i], equipmentImages[i]));
-        }
-        Random equipmentRandom = new Random();
-        int extraEquipmentCount = equipmentRandom.nextInt(3);
-        for (int i = 0; i < extraEquipmentCount; i++) {
-            int equipmentIndex = equipmentRandom.nextInt(equipmentNames.length);
-            equipment.add(new Equipment(
-                    equipmentNames[equipmentIndex], equipmentImages[equipmentIndex]));
-        }
+        equipment.add(new Equipment("Barbell", R.drawable.barbell, EquipmentType.BARBELL));
+        equipment.add(new Equipment("Skipping Rope", R.drawable.skipping_rope, EquipmentType.ROPE));
+        equipment.add(new Equipment("Water Bottle", R.drawable.bottle, EquipmentType.WATER));
         TextView equipmentAmount = findViewById(R.id.equipments_amount);
         equipmentAmount.setText(getString(R.string.amount_items, equipment.size()));
+
+        if (savedInstanceState != null) {
+            ArrayList<String> filters = savedInstanceState.getStringArrayList("equipment_filters");
+            if (filters != null) {
+                for (String filter : filters) selected.add(EquipmentType.valueOf(filter));
+            }
+        }
 
         RecyclerView equipmentList = findViewById(R.id.equipments_recycler_view);
         equipmentList.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        equipmentList.setAdapter(new EquipmentAdapter(equipment));
 
         List<ExerciseRow> rows = new ArrayList<>();
         int index = 0;
@@ -101,7 +106,7 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
                 String time = String.format(Locale.ROOT, "%02d:%02d",
                         step.seconds / 60, step.seconds % 60);
                 rows.add(new ExerciseRow(new Exercise(EXERCISE_NAMES[step.exercise],
-                        time, EXERCISE_IMAGES[step.exercise])));
+                        time, EXERCISE_IMAGES[step.exercise], EXERCISE_EQUIPMENT[step.exercise])));
             }
         }
         TextView setAmount = findViewById(R.id.exercises_amount);
@@ -110,7 +115,21 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
         RecyclerView exerciseList = findViewById(R.id.exercises_recycler_view);
         exerciseList.setLayoutManager(new LinearLayoutManager(this));
         exerciseList.setNestedScrollingEnabled(false);
-        exerciseList.setAdapter(new ExerciseRowAdapter(rows));
+        List<ExerciseRow> visibleRows = new ArrayList<>();
+        ExerciseRowAdapter adapter = new ExerciseRowAdapter(visibleRows);
+        exerciseList.setAdapter(adapter);
+        Runnable refresh = () -> {
+            int visibleSets = filterExercises(rows, visibleRows);
+            setAmount.setText(getString(R.string.set_amount, visibleSets));
+            findViewById(R.id.exercise_filter_empty).setVisibility(
+                    visibleRows.isEmpty() ? android.view.View.VISIBLE : android.view.View.GONE);
+            adapter.notifyDataSetChanged();
+        };
+        equipmentList.setAdapter(new EquipmentAdapter(equipment, selected, type -> {
+            if (!selected.add(type)) selected.remove(type);
+            refresh.run();
+        }));
+        refresh.run();
         Button start = findViewById(R.id.startWorkoutButton);
         String workoutTitle = workoutName.getText().toString();
         long seed = getIntent().getLongExtra("seed", 0L);
@@ -138,6 +157,32 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
                 }
             });
         });
+    }
+
+    private int filterExercises(List<ExerciseRow> rows, List<ExerciseRow> visibleRows) {
+        visibleRows.clear();
+        ExerciseRow pendingHeader = null;
+        int visibleSets = 0;
+        for (ExerciseRow row : rows) {
+            if (row.getType() == ExerciseRow.HEADER) {
+                pendingHeader = row;
+            } else if (selected.isEmpty() || selected.contains(row.getExercise().getEquipmentType())) {
+                if (pendingHeader != null) {
+                    visibleRows.add(pendingHeader);
+                    pendingHeader = null;
+                    visibleSets++;
+                }
+                visibleRows.add(row);
+            }
+        }
+        return visibleSets;
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        ArrayList<String> filters = new ArrayList<>();
+        for (EquipmentType type : selected) filters.add(type.name());
+        state.putStringArrayList("equipment_filters", filters);
     }
 
     @Override protected void onDestroy() { executor.shutdown(); super.onDestroy(); }

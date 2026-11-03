@@ -108,6 +108,14 @@
                     tools:text="2 Sets" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/exercise_filter_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/exercise_filter_empty"
+                android:visibility="gone" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/exercises_recycler_view"
                 android:layout_width="match_parent"

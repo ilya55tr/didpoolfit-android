@@ -1,12 +1,23 @@
 package by.ilyatr.didpoolfit.model;
 
 public class Equipment {
+  public enum EquipmentType {
+    NONE, BARBELL, ROPE, WATER
+  }
+
   private String name;
   private int image;
 
-  public Equipment(String name, int image) {
+  private final EquipmentType equipmentType;
+
+  public Equipment(String name, int image, EquipmentType equipmentType) {
+    this.equipmentType = equipmentType;
     this.name = name;
     this.image = image;
+  }
+
+  public EquipmentType getEquipmentType() {
+    return equipmentType;
   }
 
   public String getName() {

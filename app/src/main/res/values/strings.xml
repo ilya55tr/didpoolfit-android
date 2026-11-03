@@ -106,4 +106,6 @@
     <string name="set_title">Set %1$d</string>
     <string name="set_amount">%1$d Sets</string>
     <string name="start_workout">Start Workout</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="exercise_filter_empty">No exercises for the selected equipment.</string>
 </resources>

@@ -71,6 +71,9 @@ public class OnboardingActivity extends AppCompatActivity {
         }
         showStep(step);
 
+        findViewById(R.id.onboarding_skip).setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterActivity.class)));
+
         onbButton.setOnClickListener(v -> {
             if (step == frames.length-1){
                 startActivity(new Intent(this, RegisterActivity.class));
