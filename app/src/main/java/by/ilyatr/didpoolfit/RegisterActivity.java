@@ -2,9 +2,7 @@ package by.ilyatr.didpoolfit;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
@@ -24,10 +22,11 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RegisterActivity extends AppCompatActivity {
 
-    // Только цифры и спецсимволы (ASCII-пунктуация), ровно 8 символов
-    static final String PASSWORD_REGEX = "^[0-9\\p{Punct}]{8}$";
     // +7 и 10 цифр номера
     static final int PHONE_DIGITS = 11;
 
@@ -40,8 +39,8 @@ public class RegisterActivity extends AppCompatActivity {
     MaterialCheckBox termsCheck;
     Button registerButton;
     TextView loginTextView;
-    SharedPreferences userData;
-    SharedPreferences.Editor userEdit;
+    UserStorage storage;
+    private final Set<TextInputLayout> editedFields = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +65,6 @@ public class RegisterActivity extends AppCompatActivity {
             } else if (!hasFocus && text.replaceAll("\\D", "").equals("7")) {
                 phoneInput.setText("");
             }
-            if (!hasFocus && !getText(phoneLayout).isEmpty()) {
-                validateInput(phoneLayout, true);
-            }
         });
 
         nameLayout = findViewById(R.id.nameLayout);
@@ -80,37 +76,27 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.registerButton);
         loginTextView = findViewById(R.id.loginTextView);
 
-        userData = getSharedPreferences("user", MODE_PRIVATE);
-        userEdit = userData.edit();
+        storage = new UserStorage(this);
 
-        clearErrorOnInput(nameLayout);
-        clearErrorOnInput(phoneLayout);
-        clearErrorOnInput(emailLayout);
-        clearErrorOnInput(passwordLayout);
-        clearErrorOnInput(repeatPasswordLayout);
+        validateOnInput(nameLayout);
+        validateOnInput(phoneLayout);
+        validateOnInput(emailLayout);
+        validateOnInput(passwordLayout);
+        validateOnInput(repeatPasswordLayout);
         termsCheck.setOnCheckedChangeListener((v, isChecked) -> {
             if (isChecked) termsCheck.setErrorShown(false);
             updateRegistrationSteps();
         });
 
-        // У телефона уже есть обработчик фокуса для префикса +7.
-        for (TextInputLayout layout : new TextInputLayout[]{
-                nameLayout, emailLayout, passwordLayout, repeatPasswordLayout}) {
-            layout.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus && !getText(layout).isEmpty()) {
-                    validateInput(layout, true);
-                }
-            });
-        }
         updateRegistrationSteps();
         registerButton.setOnClickListener(v -> {
             if (validate()) {
-                userEdit.putString("fullName", getText(nameLayout));
-                userEdit.putString("phoneNumber", getText(phoneLayout));
-                userEdit.putString("email", getText(emailLayout));
-                userEdit.putString("password", getText(passwordLayout));
-                userEdit.apply();
-                startActivity(new Intent(this, RegisterSecondActivity.class));
+                Intent next = new Intent(this, RegisterSecondActivity.class);
+                next.putExtra("fullName", getText(nameLayout));
+                next.putExtra("phoneNumber", getText(phoneLayout));
+                next.putExtra("email", getText(emailLayout));
+                next.putExtra("password", getText(passwordLayout));
+                startActivity(next);
             }
         });
 
@@ -151,18 +137,16 @@ public class RegisterActivity extends AppCompatActivity {
                 error = R.string.error_empty;
             } else if (digits.length() != PHONE_DIGITS) {
                 error = R.string.error_phone;
-            } else if (userData.getBoolean("registered", false)
-                    && digits.equals(userData.getString("phoneNumber", "").replaceAll("\\D", ""))) {
+            } else if (storage.phoneExists(text)) {
                 error = R.string.error_phone_exists;
             }
         } else if (layout == emailLayout) {
             if (!Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
                 error = R.string.error_email;
-            } else if (userData.getBoolean("registered", false)
-                    && text.equalsIgnoreCase(userData.getString("email", ""))) {
+            } else if (storage.emailExists(text)) {
                 error = R.string.error_email_exists;
             }
-        } else if (layout == passwordLayout && !text.matches(PASSWORD_REGEX)) {
+        } else if (layout == passwordLayout && !UserStorage.isPasswordValid(text)) {
             error = R.string.error_password;
         } else if (layout == repeatPasswordLayout && !text.equals(getText(passwordLayout))) {
             error = R.string.error_repeat_password;
@@ -182,7 +166,9 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setEnabled(previousValid);
             }
             if (!previousValid) layout.setError(null);
-            previousValid = previousValid && validateInput(layout, false);
+            // Ошибки показываем после начала ввода, только у доступных полей.
+            // Повтор пароля также перепроверяется при изменении самого пароля.
+            previousValid = previousValid && validateInput(layout, editedFields.contains(layout));
         }
         termsCheck.setEnabled(previousValid);
         registerButton.setEnabled(previousValid && termsCheck.isChecked());
@@ -202,7 +188,7 @@ public class RegisterActivity extends AppCompatActivity {
         return isPassword ? text : text.trim();
     }
 
-    private void clearErrorOnInput(TextInputLayout layout) {
+    private void validateOnInput(TextInputLayout layout) {
         layout.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -212,7 +198,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                layout.setError(null);
+                editedFields.add(layout);
                 updateRegistrationSteps();
             }
         });

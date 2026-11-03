@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:hintEnabled="false" app:errorEnabled="true" app:boxBackgroundColor="#F7F8F8">
+    <com.google.android.material.textfield.MaterialAutoCompleteTextView android:id="@+id/edit_gender" android:layout_width="match_parent" android:layout_height="56dp" android:inputType="none" android:saveEnabled="false" android:hint="@string/field_gender" android:textColor="#1D1617" android:textSize="14sp" android:fontFamily="@font/poppins_regular" app:simpleItems="@array/genders"/>
+</com.google.android.material.textfield.TextInputLayout>

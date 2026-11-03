@@ -3,7 +3,6 @@ package by.ilyatr.didpoolfit;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,14 +20,17 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class LoginActivity extends AppCompatActivity {
   TextView register;
   TextView forgetLogin;
   Button login;
   TextInputLayout emailLayout;
   TextInputLayout passwordLayout;
-  SharedPreferences userData;
-  SharedPreferences.Editor userEdit;
+  UserStorage storage;
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
 
@@ -62,38 +64,50 @@ public class LoginActivity extends AppCompatActivity {
     });
     clearErrorOnInput(emailLayout);
     clearErrorOnInput(passwordLayout);
-    userData = getSharedPreferences("user", MODE_PRIVATE);
-    userEdit = userData.edit();
+    storage = new UserStorage(this);
     login.setOnClickListener(v -> {
       if(validate()){
-        userEdit.putBoolean("loggedIn", true);
-        userEdit.apply();
-        Intent homeIntent = new Intent(this, HomeActivity.class);
-        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(homeIntent);
+        String email = getText(emailLayout);
+        String password = String.valueOf(passwordLayout.getEditText().getText());
+        login.setEnabled(false);
+        executor.execute(() -> {
+          try {
+            boolean success = storage.login(email, password);
+            runOnUiThread(() -> {
+              if (isFinishing() || isDestroyed()) return;
+              login.setEnabled(true);
+              if (success) {
+                Intent homeIntent = new Intent(this, HomeActivity.class);
+                homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(homeIntent);
+                finish();
+              } else {
+                passwordLayout.setError(getString(R.string.error_credentials));
+              }
+            });
+          } catch (UserStorage.StorageException e) {
+            runOnUiThread(() -> {
+              if (isFinishing() || isDestroyed()) return;
+              login.setEnabled(true);
+              Toast.makeText(this, R.string.error_storage, Toast.LENGTH_LONG).show();
+            });
+          }
+        });
       }
     });
   }
 
   private boolean validate() {
     boolean valid = true;
-    String corrEmail = userData.getString("email", null);
-    String corrPass = userData.getString("password", null);
     // 1. Пустые поля
     valid &= checkNotEmpty(emailLayout);
     valid &= checkNotEmpty(passwordLayout);
     String email = getText(emailLayout);
-    String password = getText(passwordLayout);
-
-    if(!email.equals(corrEmail)){
+    if (!email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
       emailLayout.setError(getString(R.string.error_email));
       valid = false;
     }
 
-    if (!password.equals(corrPass)){
-      passwordLayout.setError(getString(R.string.invalid_password));
-      valid = false;
-    }
     return valid;
   }
 
@@ -124,5 +138,10 @@ public class LoginActivity extends AppCompatActivity {
       return false;
     }
     return true;
+  }
+
+  @Override protected void onDestroy() {
+    executor.shutdown();
+    super.onDestroy();
   }
 }

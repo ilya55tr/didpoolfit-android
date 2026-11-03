@@ -4,9 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,10 +17,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 
+
 public class SplashActivity extends AppCompatActivity {
 
     ValueAnimator animator;
-    SharedPreferences userData;
+    private UserStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +33,7 @@ public class SplashActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        userData = getSharedPreferences("user", MODE_PRIVATE);
-        boolean registered = userData.getBoolean("registered", false);
-        boolean loggedIn = userData.getBoolean("loggedIn", false);
+        storage = new UserStorage(this);
         LinearProgressIndicator progress = findViewById(R.id.splashProgress);
         animator = ValueAnimator.ofInt(0, 100);
         animator.setDuration(3000);
@@ -47,14 +46,7 @@ public class SplashActivity extends AppCompatActivity {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (loggedIn) {
-                    startActivity(new Intent(SplashActivity.this, HomeActivity.class));
-                } else if (registered) {
-                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                } else {
-                    startActivity(new Intent(SplashActivity.this, WelcomeScreenActivity.class));
-                }
-                finish();
+                navigate();
             }
         });
         animator.start();
@@ -67,5 +59,19 @@ public class SplashActivity extends AppCompatActivity {
         // иначе при закрытии сплэша (поворот, «назад») откроется следующий экран
         animator.removeAllListeners();
         animator.cancel();
+    }
+
+    private void navigate() {
+        if (isFinishing() || isDestroyed()) return;
+        try {
+            Class<?> target = storage.getCurrentUser() != null ? HomeActivity.class
+                    : storage.hasUsers() ? LoginActivity.class : WelcomeScreenActivity.class;
+            startActivity(new Intent(this, target));
+            finish();
+        } catch (UserStorage.StorageException e) {
+            Toast.makeText(this, R.string.error_storage, Toast.LENGTH_LONG).show();
+            ((TextView) findViewById(R.id.splashPercent)).setText(R.string.storage_retry);
+            findViewById(R.id.splashProgress).setOnClickListener(v -> recreate());
+        }
     }
 }

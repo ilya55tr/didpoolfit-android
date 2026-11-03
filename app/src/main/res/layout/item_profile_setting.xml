@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:background="?attr/selectableItemBackground" android:focusable="true" android:clickable="true">
+    <ImageView android:id="@+id/setting_icon" android:layout_width="22dp" android:layout_height="22dp" android:importantForAccessibility="no"/>
+    <TextView android:id="@+id/setting_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="#7B7B85" android:textSize="12sp" android:fontFamily="@font/poppins_regular" android:layout_marginStart="12dp" android:layout_marginEnd="12dp"/>
+    <ImageView android:id="@+id/setting_chevron" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no"/>
+    <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/setting_switch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clickable="false" android:focusable="false" android:visibility="gone" android:importantForAccessibility="no"/>
+</LinearLayout>

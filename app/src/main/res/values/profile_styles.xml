@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<resources>
+    <style name="ShapeAppearance.DIDPOOLFit.Avatar" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="ProfileStat">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:background">@drawable/bg_profile_card</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#8C5CEB</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+    </style>
+</resources>

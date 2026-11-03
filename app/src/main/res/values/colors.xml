@@ -6,4 +6,5 @@
     <color name="gradient_end_welcome_btn">#6B50F6</color>
     <color name="gradient_start_splash_bg">#C150F6</color>
     <color name="gradient_end_splash_bg">#EEA4CE</color>
+    <color name="splash_background">#C150F6</color>
 </resources>

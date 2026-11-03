@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_profile_card" android:elevation="2dp">
+    <TextView android:id="@+id/section_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:textColor="#1D1617" android:textSize="16sp" android:fontFamily="@font/poppins_bold"/>
+    <LinearLayout android:id="@+id/section_rows" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+</LinearLayout>

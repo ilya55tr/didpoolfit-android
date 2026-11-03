@@ -1,9 +1,10 @@
 package by.ilyatr.didpoolfit;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
 
     ImageButton homeNav;
     BmiChartView bmiChart;
-    SharedPreferences userData;
+    UserStorage storage;
     TextView name;
     RecyclerView recyclerView;
     List<WorkoutItem> items = new ArrayList<>();
@@ -56,11 +57,18 @@ public class HomeActivity extends AppCompatActivity {
         homeNav.setSelected(true);
 
         bmiChart = findViewById(R.id.bmiChart);
-        userData = getSharedPreferences("user", MODE_PRIVATE);
-        showBmi();
+        storage = new UserStorage(this);
 
         name = findViewById(R.id.name);
-        name.setText(userData.getString("fullName", "null"));
+        findViewById(R.id.profileNav).setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
+        findViewById(R.id.activityNav).setOnClickListener(v -> startActivity(new Intent(this, ActivityHistoryActivity.class)));
+        findViewById(R.id.viewMore).setOnClickListener(v -> {
+            UserStorage.User user = ProfileUi.requireUser(this, storage);
+            if (user == null) return;
+            float meters = user.height / 100f;
+            Toast.makeText(this, getString(R.string.bmi_formula, user.weight, meters,
+                    user.weight / (meters * meters)), Toast.LENGTH_LONG).show();
+        });
 
         workoutSeed = savedInstanceState == null
                 ? random.nextLong() : savedInstanceState.getLong("workoutSeed");
@@ -71,9 +79,9 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void showBmi() {
-        float weight = userData.getFloat("weight", 0);
-        int height = userData.getInt("height", 0);
+    private void showBmi(UserStorage.User user) {
+        float weight = user.weight;
+        int height = user.height;
         if (Float.isNaN(weight) || weight < 20 || weight > 300 || height < 50 || height > 250) {
             bmiChart.setBmi(Float.NaN);
             return;
@@ -103,5 +111,13 @@ public class HomeActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putLong("workoutSeed", workoutSeed);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        UserStorage.User user = ProfileUi.requireUser(this, storage);
+        if (user == null) return;
+        name.setText(user.fullName);
+        showBmi(user);
     }
 }

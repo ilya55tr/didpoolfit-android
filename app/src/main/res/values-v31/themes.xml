@@ -3,6 +3,6 @@
     <style name="Theme.DIDPOOLFit.Splash" parent="Base.Theme.DIDPOOLFit">
         <item name="android:windowBackground">@drawable/bg_screen_gradient</item>
 <!--        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>-->
-        <item name="android:windowSplashScreenBackground">@drawable/bg_screen_gradient</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
     </style>
 </resources>

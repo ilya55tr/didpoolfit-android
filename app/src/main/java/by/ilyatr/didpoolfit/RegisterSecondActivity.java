@@ -1,12 +1,12 @@
 package by.ilyatr.didpoolfit;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RegisterSecondActivity extends AppCompatActivity {
 
@@ -47,8 +49,8 @@ public class RegisterSecondActivity extends AppCompatActivity {
   float weight;
   int height;
 
-  SharedPreferences userData;
-  SharedPreferences.Editor userEdit;
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
+  private UserStorage storage;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -70,6 +72,14 @@ public class RegisterSecondActivity extends AppCompatActivity {
 
     heightLayout = findViewById(R.id.heightLayout);
     nextButton = findViewById(R.id.nextButton);
+    storage = new UserStorage(this);
+    if (!getIntent().hasExtra("password") || !getIntent().hasExtra("email")) {
+      finish();
+      return;
+    }
+    if (savedInstanceState != null && savedInstanceState.containsKey("birthDate")) {
+      birthDateMillis = savedInstanceState.getLong("birthDate");
+    }
 
 
     dateOfBirthInput.setOnClickListener(v -> {
@@ -84,13 +94,7 @@ public class RegisterSecondActivity extends AppCompatActivity {
               .setSelection(birthDateMillis)
               .build();
 
-      picker.addOnPositiveButtonClickListener(selection -> {
-        birthDateMillis = selection;
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateOfBirthInput.setText(format.format(new Date(selection)));
-        dateOfBirthLayout.setError(null);
-      });
+      attachDateListener(picker);
 
       picker.show(getSupportFragmentManager(), "dateOfBirth");
     });
@@ -109,19 +113,46 @@ public class RegisterSecondActivity extends AppCompatActivity {
     clearErrorOnInput(weightLayout);
     clearErrorOnInput(heightLayout);
 
-    userData = getSharedPreferences("user", MODE_PRIVATE);
-    userEdit = userData.edit();
+    androidx.fragment.app.Fragment restoredPicker = getSupportFragmentManager().findFragmentByTag("dateOfBirth");
+    if (restoredPicker instanceof MaterialDatePicker<?>) {
+      @SuppressWarnings("unchecked") MaterialDatePicker<Long> picker = (MaterialDatePicker<Long>) restoredPicker;
+      attachDateListener(picker);
+    }
     nextButton.setOnClickListener(v -> {
       if (validate()){
-        userEdit.putString("gender", getText(genderLayout));
-        userEdit.putLong("dateOfBirth", birthDateMillis);
-        userEdit.putFloat("weight", weight);
-        userEdit.putInt("height", height);
-        userEdit.putBoolean("registered", true);
-        userEdit.apply();
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(loginIntent);
+        String gender = getText(genderLayout);
+        long birth = birthDateMillis;
+        float enteredWeight = weight;
+        int enteredHeight = height;
+        nextButton.setEnabled(false);
+        executor.execute(() -> {
+          try {
+            UserStorage.RegistrationResult result = storage.register(
+                    getIntent().getStringExtra("fullName"), getIntent().getStringExtra("phoneNumber"),
+                    getIntent().getStringExtra("email"), getIntent().getStringExtra("password"),
+                    gender, birth, enteredWeight, enteredHeight);
+            runOnUiThread(() -> {
+              if (isFinishing() || isDestroyed()) return;
+              nextButton.setEnabled(true);
+              if (result == UserStorage.RegistrationResult.SUCCESS) {
+                Intent loginIntent = new Intent(this, LoginActivity.class);
+                loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(loginIntent);
+                finish();
+              } else {
+                int message = result == UserStorage.RegistrationResult.EMAIL_EXISTS ? R.string.error_email_exists
+                        : result == UserStorage.RegistrationResult.PHONE_EXISTS ? R.string.error_phone_exists : R.string.error_profile;
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+              }
+            });
+          } catch (UserStorage.StorageException e) {
+            runOnUiThread(() -> {
+              if (isFinishing() || isDestroyed()) return;
+              nextButton.setEnabled(true);
+              Toast.makeText(this, R.string.error_storage, Toast.LENGTH_LONG).show();
+            });
+          }
+        });
       }
     });
   }
@@ -130,6 +161,10 @@ public class RegisterSecondActivity extends AppCompatActivity {
     boolean valid = true;
     valid &= checkNotEmpty(genderLayout);
     valid &= checkNotEmpty(dateOfBirthLayout);
+    if (birthDateMillis == null) {
+      dateOfBirthLayout.setError(getString(R.string.error_empty));
+      valid = false;
+    }
     valid &= checkNotEmpty(weightLayout);
     valid &= checkNotEmpty(heightLayout);
 
@@ -188,5 +223,26 @@ public class RegisterSecondActivity extends AppCompatActivity {
         layout.setError(null);
       }
     });
+  }
+
+  private void attachDateListener(MaterialDatePicker<Long> picker) {
+    picker.clearOnPositiveButtonClickListeners();
+    picker.addOnPositiveButtonClickListener(selection -> {
+      birthDateMillis = selection;
+      SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+      format.setTimeZone(TimeZone.getTimeZone("UTC"));
+      dateOfBirthInput.setText(format.format(new Date(selection)));
+      dateOfBirthLayout.setError(null);
+    });
+  }
+
+  @Override protected void onSaveInstanceState(Bundle outState) {
+    if (birthDateMillis != null) outState.putLong("birthDate", birthDateMillis);
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override protected void onDestroy() {
+    executor.shutdown();
+    super.onDestroy();
   }
 }

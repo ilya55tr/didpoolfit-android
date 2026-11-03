@@ -11,6 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DIDPOOLFit">
+        <activity android:name=".ProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ActivityHistoryActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".EditProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.profile.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/profile_file_paths" />
+        </provider>
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -45,11 +55,6 @@
         <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".workout_details"
-            android:exported="false"
-            android:theme="@style/Theme.DIDPOOLFit"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".WorkoutDetailsActivity"

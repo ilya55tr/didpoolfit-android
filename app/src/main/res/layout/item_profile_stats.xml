@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingTop="16dp" android:paddingBottom="16dp">
+    <TextView android:id="@+id/profile_height" style="@style/ProfileStat"/>
+    <TextView android:id="@+id/profile_weight" style="@style/ProfileStat"/>
+    <TextView android:id="@+id/profile_age" style="@style/ProfileStat"/>
+</LinearLayout>

@@ -2,6 +2,8 @@ package by.ilyatr.didpoolfit;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import by.ilyatr.didpoolfit.adapter.EquipmentAdapter;
 import by.ilyatr.didpoolfit.adapter.ExerciseRowAdapter;
@@ -24,6 +30,7 @@ import by.ilyatr.didpoolfit.model.ExerciseRow;
 import by.ilyatr.didpoolfit.model.WorkoutPlan;
 
 public class WorkoutDetailsActivity extends AppCompatActivity {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     // Indices match the exercise constants in WorkoutPlan.
     private static final String[] EXERCISE_NAMES = {
             "Warm Up", "Jumping Jack", "Skipping", "Squats", "Arm Raises",
@@ -46,6 +53,9 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
             v.setPadding(safeArea.left, safeArea.top, safeArea.right, safeArea.bottom);
             return insets;
         });
+        UserStorage storage = new UserStorage(this);
+        UserStorage.User user = ProfileUi.requireUser(this, storage);
+        if (user == null) return;
 
         WorkoutPlan plan = WorkoutPlan.generate(
                 getIntent().getIntExtra("exercises", 10),
@@ -101,5 +111,34 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
         exerciseList.setLayoutManager(new LinearLayoutManager(this));
         exerciseList.setNestedScrollingEnabled(false);
         exerciseList.setAdapter(new ExerciseRowAdapter(rows));
+        Button start = findViewById(R.id.startWorkoutButton);
+        String workoutTitle = workoutName.getText().toString();
+        long seed = getIntent().getLongExtra("seed", 0L);
+        start.setOnClickListener(v -> {
+            long pressedAt = System.currentTimeMillis();
+            start.setEnabled(false);
+            executor.execute(() -> {
+                try {
+                    boolean saved = storage.addWorkout(user.email, workoutTitle, plan.steps.size(), plan.minutes, seed, pressedAt);
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        start.setEnabled(true);
+                        if (saved) Snackbar.make(findViewById(R.id.main), R.string.workout_added, Snackbar.LENGTH_LONG)
+                                .setAnchorView(start)
+                                .setAction(R.string.history_action, action -> startActivity(new android.content.Intent(this, ActivityHistoryActivity.class)))
+                                .show();
+                        else Toast.makeText(this, R.string.error_session, Toast.LENGTH_LONG).show();
+                    });
+                } catch (UserStorage.StorageException e) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        start.setEnabled(true);
+                        Toast.makeText(this, R.string.error_storage, Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
+        });
     }
+
+    @Override protected void onDestroy() { executor.shutdown(); super.onDestroy(); }
 }

@@ -2,8 +2,10 @@ package by.ilyatr.didpoolfit;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -18,6 +20,7 @@ public class OnboardingActivity extends AppCompatActivity {
     ImageView onbFrame;
     ImageView onbTextSection;
     ImageButton onbButton;
+    LinearLayout onbDots;
 
     int[] frames = new int[]{
             R.drawable.onboarding_frame_1,
@@ -52,6 +55,20 @@ public class OnboardingActivity extends AppCompatActivity {
         onbFrame = findViewById(R.id.onboarding_frame);
         onbButton = findViewById(R.id.onboarding_button);
         onbTextSection = findViewById(R.id.onboarding_text_section);
+        onbDots = findViewById(R.id.onboarding_dots);
+        int dotSize = Math.round(8 * getResources().getDisplayMetrics().density);
+        for (int i = 0; i < frames.length; i++) {
+            View dot = new View(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
+            params.setMarginEnd(dotSize);
+            dot.setLayoutParams(params);
+            dot.setBackgroundResource(R.drawable.onboarding_dot);
+            dot.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            onbDots.addView(dot);
+        }
+        if (savedInstanceState != null) {
+            step = savedInstanceState.getInt("onboarding_step", 0);
+        }
         showStep(step);
 
         onbButton.setOnClickListener(v -> {
@@ -76,10 +93,20 @@ public class OnboardingActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt("onboarding_step", step);
+        super.onSaveInstanceState(outState);
+    }
+
     private void showStep(int step) {
         onbFrame.setImageResource(frames[step]);
         onbTextSection.setImageResource(texts[step]);
         onbButton.setImageResource(buttons[step]);
+        for (int i = 0; i < onbDots.getChildCount(); i++) {
+            onbDots.getChildAt(i).setSelected(i == step);
+        }
+        onbDots.setContentDescription(getString(R.string.onboarding_page, step + 1, frames.length));
     }
 
 }

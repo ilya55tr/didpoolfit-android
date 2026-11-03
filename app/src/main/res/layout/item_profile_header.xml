@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="8dp" android:paddingBottom="8dp">
+    <com.google.android.material.imageview.ShapeableImageView android:id="@+id/profile_avatar" android:layout_width="64dp" android:layout_height="64dp" android:scaleType="centerCrop" android:contentDescription="@string/profile_photo" app:shapeAppearanceOverlay="@style/ShapeAppearance.DIDPOOLFit.Avatar"/>
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp" android:layout_marginEnd="12dp">
+        <TextView android:id="@+id/profile_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#1D1617" android:textSize="14sp" android:fontFamily="@font/poppins_medium"/>
+        <TextView android:id="@+id/profile_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#7B7B85" android:textSize="11sp" android:fontFamily="@font/poppins_regular"/>
+    </LinearLayout>
+    <Button android:id="@+id/profile_edit" android:layout_width="80dp" android:layout_height="40dp" android:minWidth="0dp" android:minHeight="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:text="@string/edit_profile_button" android:fontFamily="@font/poppins_medium" android:background="@drawable/bg_button_gradient" app:backgroundTint="@null"/>
+</LinearLayout>

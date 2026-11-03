@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="20dp" android:paddingEnd="20dp">
+    <ImageButton android:id="@+id/profile_back" android:layout_width="48dp" android:layout_height="48dp" android:padding="8dp" android:src="@drawable/ic_back" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/back"/>
+    <TextView android:id="@+id/profile_title" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="center" android:text="@string/profile_title" android:textColor="#1D1617" android:textSize="18sp" android:fontFamily="@font/poppins_bold"/>
+    <ImageButton android:id="@+id/profile_more" android:layout_width="48dp" android:layout_height="48dp" android:padding="8dp" android:src="@drawable/ic_more" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/account_menu"/>
+</LinearLayout>
