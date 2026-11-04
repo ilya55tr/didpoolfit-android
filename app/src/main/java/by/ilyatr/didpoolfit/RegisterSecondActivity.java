@@ -24,8 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class RegisterSecondActivity extends AppCompatActivity {
 
@@ -49,7 +47,6 @@ public class RegisterSecondActivity extends AppCompatActivity {
   float weight;
   int height;
 
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
   private UserStorage storage;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +122,7 @@ public class RegisterSecondActivity extends AppCompatActivity {
         float enteredWeight = weight;
         int enteredHeight = height;
         nextButton.setEnabled(false);
-        executor.execute(() -> {
+        UserStorage.WRITES.execute(() -> {
           try {
             UserStorage.RegistrationResult result = storage.register(
                     getIntent().getStringExtra("fullName"), getIntent().getStringExtra("phoneNumber"),
@@ -241,8 +238,4 @@ public class RegisterSecondActivity extends AppCompatActivity {
     super.onSaveInstanceState(outState);
   }
 
-  @Override protected void onDestroy() {
-    executor.shutdown();
-    super.onDestroy();
-  }
 }

@@ -20,13 +20,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ProfileActivity extends AppCompatActivity {
     private UserStorage storage;
     private RecyclerView list;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private boolean leaving;
 
     @Override protected void onCreate(Bundle state) {
@@ -76,12 +73,14 @@ public class ProfileActivity extends AppCompatActivity {
     private void logout() {
             if (leaving) return;
             leaving = true;
-            executor.execute(() -> {
+            UserStorage.WRITES.execute(() -> {
                 try {
-                    storage.logout();
+                    String email = storage.logout();
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
-                        startActivity(new Intent(this, LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                        startActivity(new Intent(this, LoginActivity.class)
+                                .putExtra(LoginActivity.EXTRA_EMAIL, email)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                         finish();
                     });
                 } catch (UserStorage.StorageException e) {
@@ -93,7 +92,6 @@ public class ProfileActivity extends AppCompatActivity {
             });
     }
 
-    @Override protected void onDestroy() { executor.shutdown(); super.onDestroy(); }
 
     private final class ProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final UserStorage.User user;

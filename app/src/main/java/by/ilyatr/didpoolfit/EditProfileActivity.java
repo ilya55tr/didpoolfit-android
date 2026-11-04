@@ -23,8 +23,6 @@ import com.google.android.material.datepicker.DateValidatorPointBackward;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EditProfileActivity extends AppCompatActivity {
     private UserStorage storage;
@@ -32,7 +30,6 @@ public class EditProfileActivity extends AppCompatActivity {
     private EditProfileAdapter adapter;
     private RecyclerView list;
     private Button save;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     String photoName = "";
     private String cameraName = "";
     private boolean importing, saving, saved;
@@ -154,7 +151,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void importPhoto(Uri uri) {
         importing = true;
         save.setEnabled(false);
-        executor.execute(() -> {
+        UserStorage.WRITES.execute(() -> {
             try {
                 String imported = ProfilePhotos.importPhoto(this, uri);
                 runOnUiThread(() -> {
@@ -195,7 +192,7 @@ public class EditProfileActivity extends AppCompatActivity {
         long birthDate = draft.birthDate;
         saving = true;
         save.setEnabled(false);
-        executor.execute(() -> {
+        UserStorage.WRITES.execute(() -> {
             try {
                 UserStorage.UpdateResult result = storage.updateProfile(original.email, name, gender, birthDate, weight, height, photo, current, password);
                 if (result == UserStorage.UpdateResult.SUCCESS && !photo.equals(original.photoFileName)) {
@@ -256,7 +253,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     @Override protected void onDestroy() {
         if (isFinishing() && !saving && !saved) { discardDraftPhoto(); clearCamera(); }
-        executor.shutdown();
         super.onDestroy();
     }
 }

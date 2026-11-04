@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.EnumSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -40,7 +38,6 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
             EquipmentType.NONE, EquipmentType.NONE, EquipmentType.NONE
     };
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     // Indices match the exercise constants in WorkoutPlan.
     private static final String[] EXERCISE_NAMES = {
             "Warm Up", "Jumping Jack", "Skipping", "Squats", "Arm Raises",
@@ -136,7 +133,7 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
         start.setOnClickListener(v -> {
             long pressedAt = System.currentTimeMillis();
             start.setEnabled(false);
-            executor.execute(() -> {
+            UserStorage.WRITES.execute(() -> {
                 try {
                     boolean saved = storage.addWorkout(user.email, workoutTitle, plan.steps.size(), plan.minutes, seed, pressedAt);
                     runOnUiThread(() -> {
@@ -185,5 +182,4 @@ public class WorkoutDetailsActivity extends AppCompatActivity {
         state.putStringArrayList("equipment_filters", filters);
     }
 
-    @Override protected void onDestroy() { executor.shutdown(); super.onDestroy(); }
 }

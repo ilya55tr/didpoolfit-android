@@ -20,17 +20,15 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
+  static final String EXTRA_EMAIL = "login_email";
   TextView register;
   TextView forgetLogin;
   Button login;
   TextInputLayout emailLayout;
   TextInputLayout passwordLayout;
   UserStorage storage;
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
 
@@ -47,6 +45,9 @@ public class LoginActivity extends AppCompatActivity {
 
     emailLayout = findViewById(R.id.emailLayout);
     passwordLayout = findViewById(R.id.passwordLayout);
+    if (savedInstanceState == null) {
+      emailLayout.getEditText().setText(getIntent().getStringExtra(EXTRA_EMAIL));
+    }
 
 
     forgetLogin = findViewById(R.id.forgetPassword);
@@ -70,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         String email = getText(emailLayout);
         String password = String.valueOf(passwordLayout.getEditText().getText());
         login.setEnabled(false);
-        executor.execute(() -> {
+        UserStorage.WRITES.execute(() -> {
           try {
             boolean success = storage.login(email, password);
             runOnUiThread(() -> {
@@ -140,8 +141,4 @@ public class LoginActivity extends AppCompatActivity {
     return true;
   }
 
-  @Override protected void onDestroy() {
-    executor.shutdown();
-    super.onDestroy();
-  }
 }

@@ -12,12 +12,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import by.ilyatr.didpoolfit.model.WorkoutHistoryItem;
 
 /** Небольшое локальное хранилище: email -> профиль, пароль и история тренировок. */
 public final class UserStorage {
-    private static final Object LOCK = new Object();
+    // Activities submit all storage writes to this single queue.
+    static final Executor WRITES = Executors.newSingleThreadExecutor();
     private final SharedPreferences preferences;
 
     public enum RegistrationResult { SUCCESS, EMAIL_EXISTS, PHONE_EXISTS, INVALID_PROFILE }
@@ -58,143 +61,129 @@ public final class UserStorage {
     }
 
     public boolean hasUsers() {
-        synchronized (LOCK) { return readUsers().length() > 0; }
+        return readUsers().length() > 0;
     }
 
     public boolean emailExists(String email) {
-        synchronized (LOCK) { return readUsers().has(normalizeEmail(email)); }
+        return readUsers().has(normalizeEmail(email));
     }
 
     public boolean phoneExists(String phone) {
-        synchronized (LOCK) {
-            JSONObject users = readUsers();
-            String digits = phone == null ? "" : phone.replaceAll("\\D", "");
-            Iterator<String> emails = users.keys();
-            try {
-                while (emails.hasNext()) {
-                    if (digits.equals(users.getJSONObject(emails.next()).getString("phoneNumber"))) return true;
-                }
-                return false;
-            } catch (JSONException e) { throw new StorageException(e); }
-        }
+        JSONObject users = readUsers();
+        String digits = phone == null ? "" : phone.replaceAll("\\D", "");
+        Iterator<String> emails = users.keys();
+        try {
+            while (emails.hasNext()) {
+                if (digits.equals(users.getJSONObject(emails.next()).getString("phoneNumber"))) return true;
+            }
+            return false;
+        } catch (JSONException e) { throw new StorageException(e); }
     }
 
     public RegistrationResult register(String name, String phone, String email, String password,
                                        String gender, long birthDate, float weight, int height) {
-        synchronized (LOCK) {
-            email = normalizeEmail(email);
-            phone = phone == null ? "" : phone.replaceAll("\\D", "");
-            if (!validProfile(name, gender, birthDate, weight, height)
-                    || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
-                    || !phone.matches("[0-9]{11}") || !isPasswordValid(password)) return RegistrationResult.INVALID_PROFILE;
-            JSONObject users = readUsers();
-            if (users.has(email)) return RegistrationResult.EMAIL_EXISTS;
-            if (phoneExists(phone)) return RegistrationResult.PHONE_EXISTS;
-            try {
-                JSONObject user = new JSONObject();
-                user.put("email", email);
-                user.put("phoneNumber", phone);
-                user.put("password", password);
-                user.put("fullName", name.trim());
-                user.put("gender", gender);
-                user.put("dateOfBirth", birthDate);
-                user.put("weight", weight);
-                user.put("height", height);
-                user.put("photoFileName", "");
-                user.put("history", new JSONArray());
-                users.put(email, user);
-                saveUsers(users);
-                return RegistrationResult.SUCCESS;
-            } catch (JSONException e) { throw new StorageException(e); }
-        }
+        email = normalizeEmail(email);
+        phone = phone == null ? "" : phone.replaceAll("\\D", "");
+        if (!validProfile(name, gender, birthDate, weight, height)
+                || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                || !phone.matches("[0-9]{11}") || !isPasswordValid(password)) return RegistrationResult.INVALID_PROFILE;
+        JSONObject users = readUsers();
+        if (users.has(email)) return RegistrationResult.EMAIL_EXISTS;
+        if (phoneExists(phone)) return RegistrationResult.PHONE_EXISTS;
+        try {
+            JSONObject user = new JSONObject();
+            user.put("email", email);
+            user.put("phoneNumber", phone);
+            user.put("password", password);
+            user.put("fullName", name.trim());
+            user.put("gender", gender);
+            user.put("dateOfBirth", birthDate);
+            user.put("weight", weight);
+            user.put("height", height);
+            user.put("photoFileName", "");
+            user.put("history", new JSONArray());
+            users.put(email, user);
+            saveUsers(users);
+            return RegistrationResult.SUCCESS;
+        } catch (JSONException e) { throw new StorageException(e); }
     }
 
     public boolean login(String email, String password) {
-        synchronized (LOCK) {
-            email = normalizeEmail(email);
-            JSONObject user = readUsers().optJSONObject(email);
-            if (user == null || password == null || !password.equals(user.optString("password"))) return false;
-            if (!preferences.edit().putString("currentEmail", email).commit()) throw new StorageException(new IllegalStateException("Login not saved"));
-            return true;
-        }
+        email = normalizeEmail(email);
+        JSONObject user = readUsers().optJSONObject(email);
+        if (user == null || password == null || !password.equals(user.optString("password"))) return false;
+        if (!preferences.edit().putString("currentEmail", email).commit()) throw new StorageException(new IllegalStateException("Login not saved"));
+        return true;
     }
 
     public User getCurrentUser() {
-        synchronized (LOCK) {
-            JSONObject user = readUsers().optJSONObject(preferences.getString("currentEmail", ""));
-            if (user == null) return null;
-            try { return new User(user); }
-            catch (JSONException e) { throw new StorageException(e); }
-        }
+        JSONObject user = readUsers().optJSONObject(preferences.getString("currentEmail", ""));
+        if (user == null) return null;
+        try { return new User(user); }
+        catch (JSONException e) { throw new StorageException(e); }
     }
 
-    public void logout() {
-        synchronized (LOCK) {
-            if (!preferences.edit().remove("currentEmail").commit()) throw new StorageException(new IllegalStateException("Logout not saved"));
-        }
+    public String logout() {
+        String email = preferences.getString("currentEmail", "");
+        if (!preferences.edit().remove("currentEmail").commit()) throw new StorageException(new IllegalStateException("Logout not saved"));
+        return email;
     }
 
     public UpdateResult updateProfile(String expectedEmail, String name, String gender, long birthDate,
                                       float weight, int height, String photo, String currentPassword, String newPassword) {
-        synchronized (LOCK) {
-            JSONObject users = readUsers();
-            String email = preferences.getString("currentEmail", "");
-            JSONObject user = users.optJSONObject(email);
-            if (user == null || !email.equals(expectedEmail)) return UpdateResult.NO_SESSION;
-            if (!validProfile(name, gender, birthDate, weight, height) || photo == null
-                    || (!photo.isEmpty() && !photo.matches("avatar_[0-9]+\\.jpg"))
-                    || newPassword == null || (!newPassword.isEmpty() && !isPasswordValid(newPassword))) return UpdateResult.INVALID_PROFILE;
-            if (!newPassword.isEmpty() && !user.optString("password").equals(currentPassword)) return UpdateResult.WRONG_PASSWORD;
-            try {
-                user.put("fullName", name.trim());
-                user.put("gender", gender);
-                user.put("dateOfBirth", birthDate);
-                user.put("weight", weight);
-                user.put("height", height);
-                user.put("photoFileName", photo);
-                if (!newPassword.isEmpty()) user.put("password", newPassword);
-                saveUsers(users);
-                return UpdateResult.SUCCESS;
-            } catch (JSONException e) { throw new StorageException(e); }
-        }
+        JSONObject users = readUsers();
+        String email = preferences.getString("currentEmail", "");
+        JSONObject user = users.optJSONObject(email);
+        if (user == null || !email.equals(expectedEmail)) return UpdateResult.NO_SESSION;
+        if (!validProfile(name, gender, birthDate, weight, height) || photo == null
+                || (!photo.isEmpty() && !photo.matches("avatar_[0-9]+\\.jpg"))
+                || newPassword == null || (!newPassword.isEmpty() && !isPasswordValid(newPassword))) return UpdateResult.INVALID_PROFILE;
+        if (!newPassword.isEmpty() && !user.optString("password").equals(currentPassword)) return UpdateResult.WRONG_PASSWORD;
+        try {
+            user.put("fullName", name.trim());
+            user.put("gender", gender);
+            user.put("dateOfBirth", birthDate);
+            user.put("weight", weight);
+            user.put("height", height);
+            user.put("photoFileName", photo);
+            if (!newPassword.isEmpty()) user.put("password", newPassword);
+            saveUsers(users);
+            return UpdateResult.SUCCESS;
+        } catch (JSONException e) { throw new StorageException(e); }
     }
 
     public boolean addWorkout(String expectedEmail, String title, int exercises, int minutes, long seed, long startedAt) {
-        synchronized (LOCK) {
-            JSONObject users = readUsers();
-            String email = preferences.getString("currentEmail", "");
-            JSONObject user = users.optJSONObject(email);
-            if (user == null || !email.equals(expectedEmail)) return false;
-            try {
-                JSONObject entry = new JSONObject();
-                entry.put("title", title);
-                entry.put("exercises", exercises);
-                entry.put("minutes", minutes);
-                entry.put("seed", seed);
-                entry.put("startedAt", startedAt);
-                user.getJSONArray("history").put(entry);
-                saveUsers(users);
-                return true;
-            } catch (JSONException e) { throw new StorageException(e); }
-        }
+        JSONObject users = readUsers();
+        String email = preferences.getString("currentEmail", "");
+        JSONObject user = users.optJSONObject(email);
+        if (user == null || !email.equals(expectedEmail)) return false;
+        try {
+            JSONObject entry = new JSONObject();
+            entry.put("title", title);
+            entry.put("exercises", exercises);
+            entry.put("minutes", minutes);
+            entry.put("seed", seed);
+            entry.put("startedAt", startedAt);
+            user.getJSONArray("history").put(entry);
+            saveUsers(users);
+            return true;
+        } catch (JSONException e) { throw new StorageException(e); }
     }
 
     public List<WorkoutHistoryItem> getHistory() {
-        synchronized (LOCK) {
-            List<WorkoutHistoryItem> result = new ArrayList<>();
-            JSONObject user = readUsers().optJSONObject(preferences.getString("currentEmail", ""));
-            if (user == null) return result;
-            try {
-                JSONArray history = user.getJSONArray("history");
-                for (int i = 0; i < history.length(); i++) {
-                    JSONObject entry = history.getJSONObject(i);
-                    result.add(new WorkoutHistoryItem(entry.getString("title"), entry.getInt("exercises"),
-                            entry.getInt("minutes"), entry.getLong("seed"), entry.getLong("startedAt")));
-                }
-                result.sort((a, b) -> Long.compare(b.startedAt, a.startedAt));
-                return result;
-            } catch (JSONException e) { throw new StorageException(e); }
-        }
+        List<WorkoutHistoryItem> result = new ArrayList<>();
+        JSONObject user = readUsers().optJSONObject(preferences.getString("currentEmail", ""));
+        if (user == null) return result;
+        try {
+            JSONArray history = user.getJSONArray("history");
+            for (int i = 0; i < history.length(); i++) {
+                JSONObject entry = history.getJSONObject(i);
+                result.add(new WorkoutHistoryItem(entry.getString("title"), entry.getInt("exercises"),
+                        entry.getInt("minutes"), entry.getLong("seed"), entry.getLong("startedAt")));
+            }
+            result.sort((a, b) -> Long.compare(b.startedAt, a.startedAt));
+            return result;
+        } catch (JSONException e) { throw new StorageException(e); }
     }
 
     private JSONObject readUsers() {
